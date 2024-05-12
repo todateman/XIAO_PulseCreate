@@ -24,7 +24,6 @@ volatile unsigned long loTime = 500; // Lo time in milliseconds
 volatile unsigned long hiTime_start = 0;
 volatile unsigned long loTime_start = 0;
 volatile uint8_t countmode = 0;
-volatile bool outputmode = false;
 
 // LED
 #define POWER_PIN 11          //NeoPixelの電源
@@ -34,10 +33,9 @@ Adafruit_NeoPixel pixels(LED_COUNT, DIN_PIN, NEO_GRB + NEO_KHZ800);
 
 void Suspend() {
   if (digitalRead(TriggerPin)){
-    outputmode = true;
+    countmode = 1;
   }
   else {
-    outputmode = false;
     digitalWrite(pulsePin, LOW);
     pixels.clear();
     pixels.show();
@@ -49,11 +47,9 @@ void Suspend() {
 //core0
 void setup() {
   pinMode(pulsePin, OUTPUT);
-  //pinMode(LED_BUILTIN, OUTPUT);
   pinMode(TriggerPin, INPUT_PULLDOWN);
 
   digitalWrite(pulsePin, LOW);
-  //digitalWrite(LED_BUILTIN, HIGH);
   pinMode(POWER_PIN, OUTPUT);
   digitalWrite(POWER_PIN, HIGH);
 
@@ -63,32 +59,41 @@ void setup() {
 }
 
 void loop() {
-  if (outputmode) {
-    digitalWrite(pulsePin, HIGH);
-    //digitalWrite(LED_BUILTIN, LOW);
-    pixels.setPixelColor(0, pixels.Color(5, 5, 5));  // WHITE
-    pixels.show();
-
-    hiTime_start = millis();
-    countmode = 1;
-    delay(hiTime);
+  static uint8_t beforemode = 0;
+  if (digitalRead(TriggerPin)) {
+    if(countmode == 1) {
+      if(countmode != beforemode) {
+        hiTime_start = millis();
+      }
+      digitalWrite(pulsePin, HIGH);
+      pixels.setPixelColor(0, pixels.Color(5, 5, 5));  // WHITE
+      pixels.show();
+      beforemode = countmode;
+      if( millis() - hiTime_start > hiTime){
+        countmode = 2;
+      }
+    }
+    if (countmode == 2) {
+      if(countmode != beforemode) {
+        loTime_start = millis();
+      }
+      digitalWrite(pulsePin, LOW);
+      pixels.clear();
+      pixels.show();
+      beforemode = countmode;
+      if( millis() - loTime_start > loTime){
+          countmode = 1;
+      }
+    }
   }
-  if (outputmode) {
-    digitalWrite(pulsePin, LOW);
-    //digitalWrite(LED_BUILTIN, HIGH);
-    pixels.clear();
-    pixels.show();
-    loTime_start = millis();
-    countmode = 2;
-    delay(loTime);
-  }
-  if (!outputmode)  {
-    digitalWrite(pulsePin, LOW);
-    pixels.clear();
-    pixels.show();
+  else {
     countmode = 0;
-    delay(100);
+    digitalWrite(pulsePin, LOW);
+    pixels.clear();
+    pixels.show();
+    beforemode = countmode;
   }
+  delay(10);
 }
 
 //core1
@@ -219,7 +224,8 @@ void loop1() {
   }
   u8x8.setInverseFont(0);
 
-  Serial.print(outputmode);
+  //Serial.print(outputmode);
+  Serial.print(countmode);
   Serial.print(", ");
   Serial.print(hiTime);
   Serial.print(", ");
