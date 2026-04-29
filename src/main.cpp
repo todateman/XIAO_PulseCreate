@@ -27,6 +27,20 @@ U8X8_SSD1306_128X32_UNIVISION_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);  // 0.91"
 // ボタン設定
 #define DEBOUNCE_TIME 50                 // ボタンデバウンス時間（ミリ秒）
 
+// 設定値の上下限・増減ステップ
+#define HI_TIME_MIN   100                // Hi時間 最小値 (ms)
+#define HI_TIME_MAX   2000               // Hi時間 最大値 (ms)
+#define HI_TIME_STEP  100                // Hi時間 増減ステップ (ms)
+#define PWM_TIME_MIN  0                  // PWM時間 最小値 (ms)
+#define PWM_TIME_MAX  20000              // PWM時間 最大値 (ms)
+#define PWM_TIME_STEP 100                // PWM時間 増減ステップ (ms)
+#define LO_TIME_MIN   100                // Lo時間 最小値 (ms)
+#define LO_TIME_MAX   2000               // Lo時間 最大値 (ms)
+#define LO_TIME_STEP  100                // Lo時間 増減ステップ (ms)
+#define DUTY_MIN      5                  // Duty比率 最小値 (%)
+#define DUTY_MAX      95                 // Duty比率 最大値 (%)
+#define DUTY_STEP     5                  // Duty比率 増減ステップ (%)
+
 // デバッグモード
 #define DEBUG 1                          // デバッグモード (1:有効 0:無効)
 
@@ -228,11 +242,11 @@ void loop1() {
   // パルス出力-Hi時間設定
   if (setmode == 1) {
     if (!digitalRead(PButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // +ボタンが押された時（デバウンス処理）
-      hiTime = min(2000, hiTime + 100);            // パルス出力-Hi時間を増加
+      hiTime = min((unsigned long)HI_TIME_MAX, hiTime + HI_TIME_STEP);  // パルス出力-Hi時間を増加
       lastDebounceTime = currentTime;               // デバウンスタイマーをリセット
     }
     if (!digitalRead(MButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // -ボタンが押された時（デバウンス処理）
-      hiTime = max(100, hiTime - 100);             // パルス出力-Hi時間を減少
+      hiTime = max((unsigned long)HI_TIME_MIN, hiTime - HI_TIME_STEP);  // パルス出力-Hi時間を減少
       lastDebounceTime = currentTime;               // デバウンスタイマーをリセット
     }
   }
@@ -240,11 +254,11 @@ void loop1() {
   // PWM出力切替時間設定
   if (setmode == 2) {
     if (!digitalRead(PButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // +ボタンが押された時（デバウンス処理）
-      pwmTime = min(20000, pwmTime + 100);          // PWM出力切替時間を増加
+      pwmTime = min((unsigned long)PWM_TIME_MAX, pwmTime + PWM_TIME_STEP); // PWM出力切替時間を増加
       lastDebounceTime = currentTime;                // デバウンスタイマーをリセット
     }
     if (!digitalRead(MButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // -ボタンが押された時（デバウンス処理）
-      pwmTime = max(0, pwmTime - 100);              // PWM出力切替時間を減少
+      pwmTime = max((unsigned long)PWM_TIME_MIN, pwmTime - PWM_TIME_STEP); // PWM出力切替時間を減少
       lastDebounceTime = currentTime;                // デバウンスタイマーをリセット
     }
   }
@@ -252,11 +266,11 @@ void loop1() {
   // パルス出力-Lo時間設定
   if (setmode == 3) {
     if (!digitalRead(PButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // +ボタンが押された時（デバウンス処理）
-      loTime = min(2000, loTime + 100);             // パルス出力-Lo時間を増加
+      loTime = min((unsigned long)LO_TIME_MAX, loTime + LO_TIME_STEP);   // パルス出力-Lo時間を増加
       lastDebounceTime = currentTime;                // デバウンスタイマーをリセット
     }
     if (!digitalRead(MButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // -ボタンが押された時（デバウンス処理）
-      loTime = max(500, loTime - 100);              // パルス出力-Lo時間を減少
+      loTime = max((unsigned long)LO_TIME_MIN, loTime - LO_TIME_STEP);   // パルス出力-Lo時間を減少
       lastDebounceTime = currentTime;                // デバウンスタイマーをリセット
     }
   }
@@ -264,11 +278,11 @@ void loop1() {
   // Duty比率設定
   if (setmode == 4) {
     if (!digitalRead(PButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // +ボタンが押された時（デバウンス処理）
-      DutyRatio = min(95, DutyRatio + 5);            // Duty比率を増加
+      DutyRatio = min((uint8_t)DUTY_MAX, (uint8_t)(DutyRatio + DUTY_STEP)); // Duty比率を増加
       lastDebounceTime = currentTime;                 // デバウンスタイマーをリセット
     }
     if (!digitalRead(MButton) && (currentTime - lastDebounceTime > DEBOUNCE_TIME)) {  // -ボタンが押された時（デバウンス処理）
-      DutyRatio = max(5, DutyRatio - 5);             // Duty比率を減少
+      DutyRatio = max((uint8_t)DUTY_MIN, (uint8_t)(DutyRatio - DUTY_STEP)); // Duty比率を減少
       lastDebounceTime = currentTime;                 // デバウンスタイマーをリセット
     }
   }
