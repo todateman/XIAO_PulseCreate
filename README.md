@@ -48,7 +48,7 @@ Core0 ループが state machine をミリ秒単位で切替。
 | --- | ---- | ----------------------- | -------- | ---------- | ---- | --- |
 | Hi時間 | `hiTime` | `HI_TIME_MAX` / `HI_TIME_MIN` / `HI_TIME_STEP` | 200 ms | 100 ms | 100 ms | 2000 ms |
 | PWM時間 | `pwmTime` | `PWM_TIME_MAX` / `PWM_TIME_MIN` / `PWM_TIME_STEP` | 7800 ms | 100 ms | 0 ms | 20000 ms |
-| Lo時間 | `loTime` | `LO_TIME_MAX` / `LO_TIME_MIN` / `LO_TIME_STEP` | 500 ms | 100 ms | 500 ms | 2000 ms |
+| Lo時間 | `loTime` | `LO_TIME_MAX` / `LO_TIME_MIN` / `LO_TIME_STEP` | 500 ms | 100 ms | 100 ms | 2000 ms |
 | Duty比率 | `DutyRatio` | `DUTY_MAX` / `DUTY_MIN` / `DUTY_STEP` | 25 % | 5 % | 5 % | 95 % |
 
 表示上は秒換算 (例: 0.2s)。  
